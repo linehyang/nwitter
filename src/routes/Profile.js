@@ -1,11 +1,52 @@
-import { authService } from "fbase";
-import React from "react";
+import { authService, dbService } from "fbase";
+import React, { useEffect, useState } from "react";
+import { collection, getDocs, query, where } from "@firebase/firestore";
+import { updateProfile } from "@firebase/auth";
 
 
-export default () => {
+export default ({ userObj, refreshUser }) => {
+  const [newDisplayName, setNweDisplayName] = useState(userObj.displayName)
+
+
   //authService.signOut()을 하면 로그인 되어져 있는것을 로그아웃 한다는 의미
-  const onLogOutClick = () => authService.signOut();
+  const getMyNweets = async () => {
+    const q = query(
+      collection(dbService, "nweets"),
+      where("creatorId", "==", userObj.uid)
+      //필터링 하는방법
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+    });
+  };
+
+  useEffect(() => {
+    getMyNweets();
+  }, [])
+
+  const onLogOutClick = () => {
+    authService.signOut();
+  }
+
+  const onChange = (event) => {
+    setNweDisplayName(event.target.value)
+  }
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    if (userObj.displayName !== newDisplayName) {
+      await updateProfile(userObj, { displayName: newDisplayName })
+    }
+    refreshUser()
+  }
+
+
   return <>
+    <form onSubmit={onSubmit}>
+      <input onChange={onChange} type="text" placeholder="Display name" value={newDisplayName} />
+      <input type="submit" value="Update Profile" />
+    </form>
     <button onClick={onLogOutClick}>Log Out</button>
   </>
 

@@ -8,10 +8,10 @@ import Navigation from "components/Navigation"
 //props = {isLoggedIn : false}
 //{isLoggedin} = {isLoggedIn : false}
 //구조분해 핟랑으로 인해 isLoggedin = false 가 된다.
-const AppRouter = ({ isLoggedIn }) => {
+const AppRouter = ({ refreshUser, isLoggedIn, userObj }) => {
   return (
     <Router>
-      {isLoggedIn && <Navigation />}
+      {isLoggedIn && <Navigation userObj={userObj} />}
       {/* 로그인이 되어있지 않다면 isLoggedIn은 false인 상태이기 때문에 Auth컴포넌트에서는 아무것도 안보임 하지만
       로그인이 성공하여 isLoggedIn이 트루가 되는순간  아래 예시처럼 <Navigation />이 실행됨.*/}
       {/* var a5 = "Cat" && "Dog";    // t && t returns Dog*/}
@@ -20,10 +20,10 @@ const AppRouter = ({ isLoggedIn }) => {
         {isLoggedIn ?
           <>
             <Route exact path="/">
-              <Home />
+              <Home userObj={userObj} />
             </Route>
             <Route exact path="/profile">
-              <Profile />
+              <Profile userObj={userObj} refreshUser={refreshUser} />
             </Route>
             <Redirect from="*" to="/" />
           </>
